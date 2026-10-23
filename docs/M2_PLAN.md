@@ -32,7 +32,7 @@ tested to agree with the polygon area within 1%). Pure functions on a daily seri
 | `flow_mm_d` | cfs x 0.0283168 m3/ft3 x 86400 s / (area km2 x 1e6 m2) x 1000 mm/m |
 | `vol_wy_mm`, `vol_aprjul_mm`, `vol_aprsep_mm`, `frac_aprjul` | sums of `flow_mm_d` over the window; `frac_aprjul = vol_aprjul / vol_wy` |
 | `com_wy_day` | centre of mass of annual flow: day of WY (Oct 1 = 1) at which cumulative flow reaches 50% |
-| `spring_pulse_day` | onset of the spring snowmelt pulse after Cayan et al. 2001 (day of minimum cumulative departure from the mean flow over a stated window); the paper's exact window must be confirmed before implementation (flagged in the literature review) |
+| `spring_pulse_day` | onset of the spring snowmelt pulse after Cayan et al. 2001: the day on which the accumulated departure of daily flow from the window's mean flow reaches its minimum (concept confirmed 2026-10-23 from a USGS-related NRCS report and a USGS fact sheet; the primary paper's exact window could not be opened, AMS returned 403). Our default window is Feb 1 - Jul 31 with the mean taken over that window; start dates Jan 1 and Mar 1 are sensitivity runs. This default is OURS, not a confirmed replication of the paper |
 | `peak_mm_d`, `peak_wy_day` | maximum daily mean in Mar 1 - Jul 31 and its day of WY |
 | `rb_flashiness` | Richards-Baker index, sum of absolute daily changes / sum of flow, over the WY |
 | `recession_k_days` | linear-reservoir constant from ln(Q) vs time on qualifying falling-limb segments (>= 7 days of strictly decreasing flow after the peak, excluding the first 2 days, Jun 1 - Oct 31) |
@@ -94,7 +94,12 @@ Covariates per basin-year (parameters in brackets, all sensitivity-tested later)
 - Failure handling for every new fetcher as in M1; no live network in the default run; opt-in live smoke tests.
 - Regression: all existing 659 tests stay green; locked files are not edited without your approval.
 
-## Decisions needed from you
+## Decisions (resolved 2026-10-23: the user approved the recommendations for 1, 2 and 3)
+Resolved as: ERA5-Land for soil moisture (primary), University of Arizona 4 km SWE for snow-on and April 1 SWE, NLDAS-2 later
+as a second model; defaults as listed in item 2; bulk pull for all six basins, WY1982-2026. User action outstanding: create a
+Copernicus CDS account (API key to `~/.cdsapirc`, mode 600) and a NASA Earthdata login; neither credential is ever stored in
+the repo. M2a and M2b do not wait on this. The original options text follows for the record.
+
 1. **Soil-moisture and gridded-SWE source (blocks M2c).** Options:
    - **A. ERA5-Land** via the Copernicus Climate Data Store: 1950 onward, hourly, 9 km, four soil layers plus snow water
      equivalent. Needs a free CDS account and API key in `~/.cdsapirc` (mode 600), created by you. Known wet bias
