@@ -10,3 +10,7 @@ data/
 .pytest_cache/
 .hypothesis/
 .mypy_cache/
+
+# literature-review working files (final review lives in docs/LITERATURE_REVIEW.md)
+reports/
+research_notes/
