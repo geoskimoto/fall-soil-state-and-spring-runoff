@@ -41,9 +41,9 @@ concurrency. Analysis package is framework-independent so the UI can be swapped 
 
 ## 3. Pilot basins (candidates, to be verified in Phase 0)
 
-Gauge IDs below are from memory and are NOT yet verified. Phase 0 must confirm each against
-GAGES-II / HCDN-2009 (reference status), period of record, regulation/diversions, and
-SNOTEL coverage (SWE and soil sensors) before approval.
+**Approved by the user after Phase 0 screening (2026-10-23): Lookout Cr., Entiat, Wenatchee
+(non-ref, flagged), Selway, Minam, with SF McKenzie as the maritime alternate.** Rows marked
+Dropped/Alternate/Contrast are not in the pilot. The table below records the screening basis.
 
 | Setting | Basin | Candidate USGS gauge | Why |
 |---|---|---|---|
@@ -177,7 +177,7 @@ snow; point vs basin-scale SNOTEL representativeness; small n per basin.
 ```
 src/fallsoil/
   config.py            # env/.env settings, paths
-  water_year.py        # water_year_calculator (single source of truth)
+  water_year_calculator.py  # water-year logic, single source of truth
   fetch/               # one module per source -> basin-level parquet + manifest
   qc/                  # validation, range checks, gap logging
   covariates/          # snow-on date, SM_snowon, deficit metrics
