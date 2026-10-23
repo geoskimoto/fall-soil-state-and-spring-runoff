@@ -134,12 +134,29 @@ Gap-fill is explicit and logged, never automatic.
 |---|---|
 | Streamflow | USGS NWIS, HCDN-2009, BPA modified flows (Phase 3), HYDAT (Canada) |
 | Forcing | gridMET (primary), PRISM and Daymet as sensitivity checks |
+| Operational precipitation (independent check) | NWRFC Water Year Summary mean areal precipitation by forecast division: observed inches, normal, % of normal, monthly and water-year-to-date. See "NWRFC precipitation tables" below |
 | Snow | SNOTEL SWE/depth; UA/SWANN SWE; SNODAS (2003-) |
 | Soil moisture, observed | SNOTEL soil sensors, SCAN, USCRN, AgriMet (mostly 2000s onward) |
 | Soil moisture, long record | ERA5-Land (1950-), NLDAS-2 (1979-) |
 | Cross-checks | SMAP (2015-), GRACE (2002-) |
 | Groundwater | USGS NWIS well levels |
 | Basin attributes | GAGES-II, gSSURGO (AWC, depth), geology |
+
+**NWRFC precipitation tables (checked 2026-10-23).** The pages
+`https://www.nwrfc.noaa.gov/water_supply/wy_summary/wy_summary.php?tab=4` (water-year-to-date table) and `?tab=5`
+(monthly table) are filled in by JavaScript from HTML fragments at
+`/water_supply/wy_summary/wy_summary_4.php` and `wy_summary_5.php` with query `date=MM/DD/YYYY&tab=N&version=<any>`.
+Findings: (1) they report mean areal precipitation (observed inches, normal, departure, % of normal) for 42 forecast
+divisions, including the ones containing our pilot basins (Clearwater -> Selway; Grande Ronde -> Minam; Middle Columbia
+Upper Tributaries -> Entiat/Wenatchee, to be confirmed; Willamette Headwater Basins -> McKenzie/Lookout, to be confirmed).
+(2) Archive reaches back only to about WY2013 (09/30/2013 returns that year's table; earlier dates silently return the
+latest issuance, so a requested date must be checked against the date range printed in the returned fragment). (3) The
+page's own "Water Year" label looked wrong for at least one archived date (Oct 2014-Sep 2015 labelled 2014); trust the
+printed date range. (4) "Normal" switches by issue date (1971-2000 to 2015-09-30, 1981-2010 to 2023-11-15, 1991-2020
+after), so use observed inches, never % of normal, for multi-year analysis. (5) This is an undocumented, HTML-scraped
+endpoint with no stable API contract: use for independent validation of gridMET fall (Sep-Nov) precipitation at division
+scale and for operational context, not as a primary predictor. Any fetcher must follow the same test-first, cache-raw,
+manifest rules as the other sources.
 
 **Storage strategy (machine has ~17 GB free).** Aggregate-only: remote subset via
 zarr/THREDDS/OPeNDAP, write basin-level parquet only. No local gridded rasters, never
