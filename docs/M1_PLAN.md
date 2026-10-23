@@ -32,7 +32,7 @@ cached and never overwritten.
 | `basins` | Registry of the 6 pilot basins (id, name, setting, gauge, polygon path); lookup by id; unknown id raises |
 | `fetch.usgs_flow` | `fetch_daily_flow(site)` -> parquet with `date, flow_cfs, qualifier`; raw rdb cached; provisional/estimated qualifiers kept, not dropped |
 | `fetch.snotel` | `fetch_snotel_daily(triplet, elements)` -> `date, swe_mm, precip_accum_mm, temp_avg_c, soil_moisture_pct_{depth}`; unit conversion from inches/F explicit and tested |
-| `fetch.gridmet` | `fetch_basin_mean(basin, variable, start, end)` -> area-aware mean over cells whose centers fall inside the polygon; fails loudly if zero cells |
+| `fetch.gridmet` | `fetch_basin_mean(basin, variable, start, end)` -> **area-weighted** mean using each cell's fractional overlap with the polygon (cell-center inclusion is too coarse: Lookout Cr. at 62 km2 spans only ~4 cells of ~4 km); fails loudly if zero overlap; records provisional vs permanent data status |
 | `fetch.http` | Retry with backoff on timeout/5xx; never retries 4xx; friendly error message type for callers |
 | `manifest` | Append-only JSONL: source, URL, params, retrieved_utc, sha256, rows, code version; re-fetch of identical content does not duplicate |
 | `qc` | Range/type validation at entry (e.g. flow >= 0, SWE >= 0, temps within plausible bounds, monotonic dates, no duplicate dates); returns flags + gap report; never mutates source values |
@@ -49,8 +49,12 @@ cached and never overwritten.
 - **Mutation:** run by an independent evaluator after implementation, not by the implementer.
 
 ## Steps
-1. Review and approve this plan.
-2. Fetch GAGES-II `WestMnts` boundaries; extract the six polygons; record in manifest.
+1. Review and approve this plan. **Done (2026-10-23).**
+2. Fetch GAGES-II boundaries; extract the pilot polygons; confirm the gridMET access path.
+   **Done:** `scripts/extract_pilot_basins.py` wrote `data/raw/basins/pilot_basins_gagesii.gpkg`
+   (6 pilot + 2 alternate basins; areas match GAGES-II `DRAIN_SQKM`). Reference basins live in
+   `bas_ref_all.shp`, non-reference in `bas_nonref_WestMnts.shp`. Raw archive and extracted
+   shapefiles (~0.5 GB) are kept under `data/raw/gagesii/boundaries/` and can be pruned if disk gets tight.
 3. Spawn a test-writing agent with this document and the guide only (no implementation).
 4. Review the tests; they become locked.
 5. Implement module by module; commit after each module passes.
@@ -59,6 +63,11 @@ cached and never overwritten.
 
 ## Risks
 - AWDB and NLDI-style endpoints are flaky; fixtures and retry layer isolate tests from this.
-- gridMET access method (THREDDS NetCDF subset vs OPeNDAP) must be confirmed in step 2 before
-  its contract is finalized.
+- ~~gridMET access method must be confirmed~~ **Resolved (2026-10-23):** the THREDDS NetCDF
+  Subset Service (`thredds.northwestknowledge.net:8080/thredds/ncss/agg_met_<var>_1979_CurrentYear_CONUS.nc`)
+  returns a bounding-box x year subset in about 0.5 s (28 KB for Lookout Cr., WY2021). Grid is 1/24 degree
+  (~4 km), daily, `precipitation_amount` in mm. WY2021 totals of ~1.6-2.2 m over Lookout Cr. are
+  plausible. Server is plain HTTP, so the fetch layer must verify content (checksum, expected
+  dims/units) rather than rely on transport security. Files carry notes marking provisional
+  slices after the last permanent slice; the fetcher records this.
 - Disk: ~16 GB free; gridMET is fetched per-basin bounding box and discarded after aggregation.
