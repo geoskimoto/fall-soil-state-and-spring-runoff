@@ -24,6 +24,11 @@ class Basin:
     gauge: str
 
     @property
+    def drain_sqkm(self) -> float:
+        """GAGES-II DRAIN_SQKM (drainage area, km2) of the gauge. A constant: no file access."""
+        return _DRAIN_SQKM[self.id]
+
+    @property
     def polygon_path(self) -> Path:
         return config.get_data_dir() / "raw" / "basins" / POLYGON_FILE
 
@@ -56,6 +61,17 @@ _BASINS = (
     Basin("13336500", "Selway River near Lowell, ID", "continental", "13336500"),
     Basin("13331500", "Minam River at Minam, OR", "continental", "13331500"),
 )
+
+
+# GAGES-II DRAIN_SQKM (km2), keyed by gauge id.
+_DRAIN_SQKM = {
+    "14161500": 62.4241,
+    "14159200": 414.2997,
+    "12452800": 526.3533,
+    "12457000": 1545.47,
+    "13336500": 4959.467,
+    "13331500": 618.9291,
+}
 
 
 def list_basins() -> list[Basin]:
