@@ -47,13 +47,16 @@ SNOTEL coverage (SWE and soil sensors) before approval.
 
 | Setting | Basin | Candidate USGS gauge | Why |
 |---|---|---|---|
-| Maritime | Cowlitz R. at Packwood (WA Cascades, west slope) | 14226500 | Fast soil rewetting; expected weak effect (negative control). Replaces Cispus R. (14232500), whose daily record ends 1997 |
-| Maritime (alt) | Lookout Cr. near Blue River (OR, H.J. Andrews) | 14161500 | Small (~61 km2), well studied; fallback for Packwood |
-| Transition | Wenatchee R. at Plain (WA east Cascades) | 12457000 | Dry summers, rain-snow transition |
-| Transition | Entiat R. near Ardenvoir (WA east Cascades) | 12452800 | Steeper, thinner soils. The earlier ID 12452500 was the regulated Chelan R. |
-| Continental | Selway R. near Lowell (ID) | 13336500 | Wilderness, largely unregulated |
-| Continental | Middle Fork Salmon R. at MF Lodge (ID) | 13309220 | Batholith geology contrast; only 35 complete WYs, so marginal |
-| Alternate | Minam R. at Minam (OR, Blue Mtns) | 13331500 | Fallback if a slot above fails screening |
+| Maritime | Lookout Cr. near Blue River (OR, H.J. Andrews) | 14161500 | GAGES-II Ref; 45 complete WYs since 1982; small (~62 km2) but heavily studied. Expected weak effect (negative control) |
+| Maritime (alt) | SF McKenzie R. abv Cougar Lake (OR) | 14159200 | GAGES-II Ref, 414 km2, snowier; only 32 complete WYs since 1982 |
+| Transition | Entiat R. near Ardenvoir (WA east Cascades) | 12452800 | GAGES-II Ref, "no regulation or diversion". The earlier ID 12452500 was the regulated Chelan R. |
+| Transition | Wenatchee R. at Plain (WA east Cascades) | 12457000 | Non-ref: Chiwawa irrigation diversion + Wenatchee Lake. Usable with caveat; 37 WYs since 1982 |
+| Continental | Selway R. near Lowell (ID) | 13336500 | Lowest disturbance index (1) of the set; 45 WYs since 1982 |
+| Continental | Minam R. at Minam (OR, Blue Mtns) | 13331500 | HCDN-2009 Ref; small historic Minam Lake diversion; nearest SNOTEL soil sensor (Moss Springs) since 2003 |
+| Dropped | Cowlitz R. at Packwood (14226500) | | Non-ref, disturbance index 9: Packwood Lake regulation since 1964, 27.5 MW plant |
+| Dropped | Cispus R. (14232500); Lewis R. abv Muddy R. (14216000) | | Record ends 1997; only 20 complete WYs since 1982 |
+| Alternate | Middle Fork Salmon R. (ID) | 13309220 | GAGES-II Ref but only 35 complete WYs (27 since 1982) |
+| Contrast case | McKenzie R. at Clear Lake outlet (OR) | 14158500 | HCDN-2009 Ref; spring-fed young volcanic rock. Baseflow contrast, not a clean soil-state test |
 
 ### Phase 0 screening results (2026-10-23, `scripts/phase0_screen_basins.py`)
 
@@ -80,11 +83,30 @@ Findings that change the plan:
    the hierarchical, partial-pooling design.
 4. **MF Salmon (35 complete WYs, 27 since 1982) is marginal**; Minam is the likely replacement.
 
-Still open from Phase 0 (not yet verified):
-- Regulation / reference status (GAGES-II class, HCDN-2009 membership) for every gauge.
-  Until verified, "unregulated" is an assumption.
-- Basin polygons for MF Salmon and Minam (NLDI timed out; use another delineation service).
-- Cowlitz at Packwood: check for upstream hydropower diversions (e.g. Packwood Lake).
+Later screening additions: SF McKenzie 56 complete WYs (32 since 1982; 1 SNOTEL inside, soil
+sensor only since 2023); Lewis abv Muddy 43 (20 since 1982); Minam polygon 604 km2, nearest
+SNOTEL Moss Springs has soil moisture since 2003 (the longest observed record found so far).
+
+**GAGES-II regulation check** (`scripts/phase0_gagesii_check.py`; GAGES-II covers data to 2009,
+so later changes are unchecked):
+
+| Gauge | Class | Disturbance index | GAGES-II remarks |
+|---|---|---|---|
+| 12452800 Entiat | Ref | 4 | No regulation or diversion |
+| 13309220 MF Salmon | Ref | 4 | Undeveloped |
+| 13331500 Minam | Ref (HCDN-2009) | 5 | Minam Lake stored/diverted flow since 1917 for irrigation |
+| 13336500 Selway | Non-ref | 1 | Small headwater diversions |
+| 12457000 Wenatchee | Non-ref | 6 | Chiwawa irrigation diversion (~1,400 acres); natural regulation by Wenatchee Lake |
+| 14161500 Lookout Cr. | Ref | 7 | No regulation or diversion |
+| 14226500 Cowlitz, Packwood | Non-ref | 9 | Packwood Lake regulation since 1964; 27.5 MW hydropower |
+
+Still open from Phase 0:
+- Basin polygon for MF Salmon (NLDI timed out repeatedly) and Lewis R.; use another
+  delineation source (StreamStats or the GAGES-II boundary shapefiles) if either is kept.
+- Quantify the Wenatchee diversion and the Minam Lake storage effect (or decide to exclude them).
+- Confirm no post-2009 regulation changes at the final basins.
+- Willamette basins (Lookout, McKenzie) are Columbia-system but join near Portland; decide
+  whether they count as "Columbia Basin" for the paper.
 
 Selection criteria: >= 40 water years, unregulated or minimally diverted, >= 1 SNOTEL site
 with SWE (soil sensors preferred), contrasting geology and climate.

@@ -15,6 +15,8 @@ from shapely.geometry import Point, shape
 CANDIDATES = {
     "14226500": "Cowlitz at Packwood (maritime)",
     "14161500": "Lookout Cr (maritime alt)",
+    "14159200": "SF McKenzie abv Cougar L (maritime)",
+    "14216000": "Lewis abv Muddy R (maritime)",
     "12457000": "Wenatchee at Plain (transition)",
     "12452800": "Entiat nr Ardenvoir (transition)",
     "13336500": "Selway nr Lowell (continental)",
