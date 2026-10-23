@@ -19,8 +19,9 @@ cached and never overwritten.
   (Oct 1 - Sep 30; WY labelled by the calendar year in which it ends).
 - **Units and time zones in names/docs:** `flow_cfs`, `precip_mm`, `swe_mm`, `temp_c`,
   `soil_moisture_pct`. USGS daily values are daily means in local standard time; AWDB daily
-  values are in the station's fixed standard time (PST for WA/OR/ID); gridMET days are UTC-day
-  aggregates. Each fetcher states its convention in its output metadata.
+  values are in the station's fixed standard time (PST for WA/OR/ID); gridMET "days" are approximately calendar days
+  ending at midnight Mountain Standard Time (07:00 UTC the next day), per the file's own note5
+  (corrected 2026-10-23; this plan previously said UTC-day). Each fetcher states its convention in its output metadata.
 - **Gaps:** never filled or dropped silently. QC emits a flag column and a log record.
 
 ## Components and contracts (what the tests will pin down)

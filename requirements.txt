@@ -38,3 +38,5 @@ tzdata==2026.5
 urllib3==2.8.0
 wrapt==2.5.1
 xarray==2026.9.0
+PyYAML==6.0.3
+responses==0.26.3

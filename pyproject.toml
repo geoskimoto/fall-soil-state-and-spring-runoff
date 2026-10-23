@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+markers = [
+    "live: hits real remote APIs; skipped unless run with -m live",
+    "slow: slow tests (hypothesis-heavy); deselect with -m 'not slow'",
+]
+filterwarnings = ["error::pytest.PytestUnraisableExceptionWarning"]
