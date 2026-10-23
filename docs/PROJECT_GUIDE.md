@@ -232,6 +232,9 @@ reimplementing.
 4. Dash explorer over cached results.
 5. Paper draft; Phase 2 expansion; Phase 3 mainstem with BPA modified flows.
 
+Deferred (user decision 2026-10-23): an NWRFC water-year precipitation fetcher, for independent validation of gridMET
+fall precipitation. Revisit after the main analysis (Milestones 2-3) has run.
+
 ## 10. Open decisions
 
 - Approve or swap the pilot basins after Phase 0 screening.
