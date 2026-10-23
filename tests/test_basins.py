@@ -85,7 +85,7 @@ def test_polygon_missing_file_raises_friendly_error(data_dir):
 
 def expected_polygon_sha(bid):
     """Independent derivation: sha256 of the 2-D little-endian WKB of the geopackage polygon."""
-    gdf = gpd.read_file(next((get_basin(bid).polygon_path,)), engine="pyogrio")
+    gdf = gpd.read_file(get_basin(bid).polygon_path, engine="pyogrio")
     geom = gdf.loc[gdf["site_no"] == bid, "geometry"].iloc[0]
     return hashlib.sha256(shapely.to_wkb(geom, output_dimension=2, byte_order=1)).hexdigest()
 
