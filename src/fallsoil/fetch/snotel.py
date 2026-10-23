@@ -25,7 +25,7 @@ URL = "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data"
 SOURCE = "snotel_awdb"
 DEFAULT_START = "1950-01-01"
 MM_PER_INCH = 25.4
-_TRIPLET_RE = re.compile(r"^\d+:[A-Z]{2}:[A-Z]+$")
+_TRIPLET_RE = re.compile(r"\d+:[A-Z]{2}:[A-Z]+")  # matched with fullmatch: `$` would accept a trailing newline
 TIME_CONVENTION = (
     "Daily values in the station's fixed standard time: PST (UTC-8, no daylight saving), "
     "as reported by NRCS AWDB for SNOTEL stations."
@@ -64,7 +64,7 @@ _CONVERT = {"WTEQ": inches_to_mm, "PREC": inches_to_mm, "TAVG": fahrenheit_to_ce
 def _check_triplet(triplet) -> str:
     if not isinstance(triplet, str):
         raise TypeError(f"triplet must be a string like '908:WA:SNTL', got {type(triplet).__name__}")
-    if not _TRIPLET_RE.match(triplet):
+    if not _TRIPLET_RE.fullmatch(triplet):
         raise ValueError(f"triplet must look like '908:WA:SNTL' (id:STATE:NETWORK), got {triplet!r}")
     return triplet
 
@@ -170,10 +170,16 @@ def _parse(body: bytes, triplet: str, elements: tuple[str, ...]) -> tuple[pd.Dat
     if not columns or all(len(s) == 0 for s in columns.values()):
         raise EmptyResultError(f"AWDB returned no values for station {triplet} in the requested period.")
 
-    order = sorted(columns, key=lambda c: (_column_rank(c, elements), c))
+    order = sorted(columns, key=lambda c: (_column_rank(c, elements), _depth_in(c), c))
     frame = pd.concat([columns[c] for c in order], axis=1, keys=order).sort_index()
     frame.index.name = "date"
     return frame.reset_index(), units
+
+
+def _depth_in(column: str) -> int:
+    """Sensor depth in inches from a `..._<depth>in` column name (0 if none), for numeric ordering."""
+    match = re.search(r"_(\d+)in$", column)
+    return int(match.group(1)) if match else 0
 
 
 def _column_rank(column: str, elements: tuple[str, ...]) -> int:

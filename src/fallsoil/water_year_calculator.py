@@ -30,9 +30,9 @@ def _check_scalar(d) -> date:
 
 def _parts(d):
     """Return (year, month, dayofyear, is_leap_year) for a datetime-like vector."""
-    values = d.dt if isinstance(d, pd.Series) else d
     if isinstance(d, pd.Series) and not pd.api.types.is_datetime64_any_dtype(d):
         raise TypeError(f"expected datetime values, got dtype {d.dtype}")
+    values = d.dt if isinstance(d, pd.Series) else d
     return values.year, values.month, values.day_of_year, values.is_leap_year
 
 

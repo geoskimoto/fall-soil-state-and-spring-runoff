@@ -23,7 +23,7 @@ URL = "https://waterservices.usgs.gov/nwis/dv/"
 SOURCE = "usgs_dv"
 PARAM_CD, STAT_CD = "00060", "00003"
 DEFAULT_START = "1900-01-01"  # NWIS returns only the latest day if no start is given
-_SITE_RE = re.compile(r"^\d{8,15}$")
+_SITE_RE = re.compile(r"\d{8,15}")  # matched with fullmatch: `$` would accept a trailing newline
 TIME_CONVENTION = (
     "Daily mean discharge; each date is a calendar day in the gauge's local standard time "
     "(USGS reports daily values in local standard time, not UTC)."
@@ -38,7 +38,7 @@ def parse_qualifier(code: str | None) -> frozenset[str]:
 def _check_site(site) -> str:
     if not isinstance(site, str):
         raise TypeError(f"site must be a string of 8-15 digits, got {type(site).__name__}")
-    if not _SITE_RE.match(site):
+    if not _SITE_RE.fullmatch(site):
         raise ValueError(f"site must be 8-15 digits (a USGS site number), got {site!r}")
     return site
 
