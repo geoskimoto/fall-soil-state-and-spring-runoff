@@ -124,3 +124,28 @@ the repo. M2a and M2b do not wait on this. The original options text follows for
 - The Cayan spring-pulse window and the Brutsaert-Nieber segment rules are sensitive choices; both are parameterized and
   reported with diagnostics.
 - A new defect found by the independent tests is reported to you before any code change, as in Milestone 1.
+
+## First-look findings (2026-10-24, exploratory; scripts/pull_pilot_data.py, scripts/first_look.py)
+Facts (measured on the real pilot data, WY1982-2025):
+- **Usable water years per basin:** Entiat 44, Selway 44, Minam 44, Lookout 43, Wenatchee 36 (no gauge data 1979-10-11 to
+  1989-09-30), SF McKenzie 30-31 (no gauge data 1987-09-30 to 2000-09-30). These are real USGS record gaps, not pipeline errors,
+  and define the sample.
+- **Spring-pulse day** fails in the two maritime basins at every window start tested (Jan 1, Feb 1, Mar 1, Apr 1): the
+  minimum accumulated departure sits at the window end because there is no snowmelt step. Combined stuck-at-window-end
+  years across all six basins: 25 of 75 (Jan 1), 23 (Feb 1), 31 (Mar 1), 61 (Apr 1). In the four snow-dominated basins it is
+  robust (median shifts about 12 days from Jan 1 to Mar 1, less than the 12-25 day year-to-year spread) and correlates with
+  centre of mass at about 0.5-0.8, so it is partly redundant. Centre of mass and Apr-Jul fraction are correlated at 0.85
+  (Lookout), so they carry similar information. The two baseflow filters differ by about 0.2 in BFI.
+- **SF McKenzie recession** is slow (k about 105 days, b about 3.9): consistent with lava-fed groundwater storage, but it may be
+  method-driven; the locked tests do not cover noisy real recessions.
+- **No provisional flow** in any WY1982-2025 year; provisional values are all in WY2026.
+- **Fall precipitation signal (orientation only):** after controlling for Dec-Mar precipitation, Dec-Feb temperature and
+  Apr-Jun weather, Sep-Nov precipitation has a clear positive effect on ln(Apr-Jul volume) in Entiat only (+0.107 per SD, 95% CI
+  0.06-0.16, R2 0.66 to 0.79) and none in the maritime basins; Wenatchee, Selway and Minam lean positive but not significant.
+  No snow or soil-moisture data yet, no out-of-sample test, no autocorrelation correction. NOT a result.
+
+PROPOSED, NOT YET APPROVED by the user: keep Feb 1 as the default spring-pulse window with Jan 1 and Mar 1 as sensitivity runs;
+treat spring-pulse day as interpretable only for the transition and continental basins and use centre of mass and Apr-Jul
+fraction for the maritime ones; add a "no pulse detected" NaN when the minimum sits at a window edge (this changes a locked
+spec and needs the user's approval before the lock is touched); keep both baseflow filters as a pair; flag SF McKenzie's
+recession parameters as possibly method-driven.
