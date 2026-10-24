@@ -104,6 +104,22 @@ suites or mutation evaluation while the research design iterates; existing locke
 - **Expansion beyond the pilot** (decision deferred): candidate set would be GAGES-II reference gauges in the Columbia basin with
   >= 40 complete WYs, area about 50-2000 km2 and >= 1 SNOTEL site; count them before deciding.
 
+## M2c bulk-pull design: ERA5-Land soil moisture and SWE (2026-10-24; relaxed-testing policy applies)
+Probe finding: CDS requests queue for many minutes even when tiny, so the pull is a resumable background job, not interactive.
+- **Dataset:** `derived-era5-land-daily-statistics` (daily mean, 1-hourly frequency, time zone UTC-08:00 to match SNOTEL PST),
+  variables `volumetric_soil_water_layer_1..4` and `snow_depth_water_equivalent`.
+- **Request unit:** one request per calendar year (1981-2026) over ONE union bounding box of the six pilot basins (basin bounds
+  plus one 0.1-degree cell, snapped to 0.1). About 46 requests instead of about 270, and the cached grids serve any basin inside
+  the box. A later Columbia-wide expansion would add boxes, not redo these.
+- **Cache and provenance:** raw NetCDF cached byte-identical under `data/raw/era5land/` (never overwritten), one manifest record
+  per file. Resume = skip years whose cached file for the same box already exists.
+- **Basin means:** computed offline from the cached grids by fractional-overlap area weighting on the 0.1-degree grid (Lookout,
+  62 km2, falls on about one cell: treated as a negative control, per the risks above). Output `data/interim/era5land/`
+  parquet per basin with `sm_l1..l4_m3m3`, `sm_0_100cm_m3m3` (ERA5-Land layers are 0-7, 7-28, 28-100 and 100-289 cm;
+  the 0-100 cm column weights the first three) and `swe_mm`.
+- **Deferred:** within-basin percentile transform, snow-on date, deficit proxy and the double-mass estimate stay as specified in
+  M2c above, built on these parquet files after the pull.
+
 ## Test plan
 - Written first by a separate agent from this document; locked with hashes; mutation-evaluated afterwards by an independent agent.
 - Synthetic ground truth: hydrographs built from known parameters (a known peak day, a known CT, a linear reservoir with
