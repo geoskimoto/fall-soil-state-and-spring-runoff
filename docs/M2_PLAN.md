@@ -83,6 +83,27 @@ Covariates per basin-year (parameters in brackets, all sensitivity-tested later)
 - Acceptance: every row reproducible from raw files and the manifest alone; row counts and spot values checked against
   independent hand calculations for one basin and two water years.
 
+## M2a results and pilot decisions (2026-10-24)
+Implemented in `src/fallsoil/responses/` (commit 8ce097e); spec in `tests/INTERFACE_M2A.md`. Run on the cached USGS flow for the
+six pilot basins, WY1982-2025. Testing policy for this project is relaxed for now (user decision, 2026-10-24): no new locked
+suites or mutation evaluation while the research design iterates; existing locked tests stay green.
+- **Usable years.** Lookout 44, Minam 44, Selway 44, Entiat 44, Wenatchee 36, SF McKenzie 31. The Wenatchee (no data 1979-10-11 to
+  1989-09-30) and SF McKenzie (no data 1987-09-30 to 2000-09-30) gaps are in the USGS record itself and cannot be repaired.
+- **Fall low-flow windows (kept).** For WY X: `q7min_mm_d` = Aug 1-Oct 31 of calendar year X, `augsep_mean_mm_d` = Aug-Sep,
+  `next_oct_mean_mm_d` = October of year X (belongs to WY X+1). They describe persistence after the spring response. Antecedent
+  fall dryness for WY X is the previous row's values (one-year lag, applied at assembly in M2d). The latest WY is NaN with a reason
+  until its October exists.
+- **Spring-pulse day.** Default Feb 1 start; Jan 1 and Mar 1 are sensitivity runs. Tested starts Jan 1 to Apr 1: it fails in the two
+  maritime basins at every start (many years stuck at the Jul 31 window end; remaining values not tied to snowmelt), and is robust in
+  the four snow-dominated basins (median shifts about 12 days between Jan 1 and Mar 1, less than the 12-25 day year-to-year
+  spread). Decision: interpret `spring_pulse_day` only for transition and continental basins; use `com_wy_day` and `frac_aprjul`
+  for maritime ones. It correlates 0.5-0.8 with `com_wy_day` where it works, so it is partly redundant.
+- **Baseflow and recession.** Eckhardt and Lyne-Hollick are reported as a pair; their spread (about 0.2 in BFI) is the uncertainty.
+  SF McKenzie's slow recession (k about 105 d, b about 3.9) is plausibly lava-fed groundwater but may be method-driven; the
+  Brutsaert-Nieber envelope (10 log bins, per-bin minimum) is untested on noisy recession data.
+- **Expansion beyond the pilot** (decision deferred): candidate set would be GAGES-II reference gauges in the Columbia basin with
+  >= 40 complete WYs, area about 50-2000 km2 and >= 1 SNOTEL site; count them before deciding.
+
 ## Test plan
 - Written first by a separate agent from this document; locked with hashes; mutation-evaluated afterwards by an independent agent.
 - Synthetic ground truth: hydrographs built from known parameters (a known peak day, a known CT, a linear reservoir with
