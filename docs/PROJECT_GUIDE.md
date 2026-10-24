@@ -79,8 +79,9 @@ Findings that change the plan:
    predictor, with the short SNOTEL SMS records used only to validate its bias and dynamics.
 2. **SNOTEL SWE coverage is thin inside basins** (0-1 stations, mostly from 1979+).
    Basin-scale SWE should come from gridded products (UA/SWANN from 1982), with SNOTEL as a check.
-3. **Effective sample size is ~45 water years per basin** (common period 1982+), which supports
-   the hierarchical, partial-pooling design.
+3. **Effective sample size is 30-44 water years per basin** (common period 1982+; measured 2026-10-24 after the first
+   data pull: Entiat 44, Selway 44, Minam 44, Lookout 43, Wenatchee 36 because the gauge has no data WY1982-1989,
+   SF McKenzie 30 because it has none for WY1988-2000), which supports the hierarchical, partial-pooling design.
 4. **MF Salmon (35 complete WYs, 27 since 1982) is marginal**; Minam is the likely replacement.
 
 Later screening additions: SF McKenzie 56 complete WYs (32 since 1982; 1 SNOTEL inside, soil
