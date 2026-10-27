@@ -101,8 +101,19 @@ suites or mutation evaluation while the research design iterates; existing locke
 - **Baseflow and recession.** Eckhardt and Lyne-Hollick are reported as a pair; their spread (about 0.2 in BFI) is the uncertainty.
   SF McKenzie's slow recession (k about 105 d, b about 3.9) is plausibly lava-fed groundwater but may be method-driven; the
   Brutsaert-Nieber envelope (10 log bins, per-bin minimum) is untested on noisy recession data.
-- **Expansion beyond the pilot** (decision deferred): candidate set would be GAGES-II reference gauges in the Columbia basin with
-  >= 40 complete WYs, area about 50-2000 km2 and >= 1 SNOTEL site; count them before deciding.
+- **Expansion beyond the pilot** (decision 2026-10-27: user chose option 1, SNOTEL is a flag, not a filter). Screen, counted by
+  `scripts/phase1_count_candidates.py`: GAGES-II Ref, HUC02 17, area 50-2000 km2, Columbia basin (HUC4 1701-1709), >= 40 years
+  of USGS daily flow. Funnel: 276 -> 199 -> 198 with a discharge series -> 113 in the Columbia basin -> **66 selected** (4 are
+  existing pilots: Entiat, Minam, SF McKenzie, Lookout; 62 new). Wenatchee and Selway fail the screen as written (Selway is
+  4959 km2). With the plan's original SNOTEL-inside rule only 24 would remain; 24 of the 66 have a SNOTEL station inside. Why
+  dropped: SWE and soil moisture come from gridded products, SNOTEL only validates them.
+  - Mix of the 66: OR 32, WA 15, ID 10, MT 4, WY 4, NV 1; HUC4 1709 (Willamette) alone has 19, so maritime and Cascade settings
+    are over-represented against the continental pilot basins. Pooled models should carry a setting term.
+  - **Record length is a proxy** (days with data / 365.25 from the USGS series catalog). Usable water years since 1982 will be
+    lower (SF McKenzie: 56 by proxy, 30 usable). The real count needs the flow pull, after which the selected set is re-screened.
+  - 49 of the 66 still report in 2025. GAGES-II reference status only covers data to 2009, so later regulation is unchecked.
+  - Not yet decided: whether to pull flow and gridMET for the 62 new basins (several hundred requests, cached and resumable)
+    and whether the ERA5-Land box is extended; the current box covers the six pilots only.
 
 ## M2c bulk-pull design: ERA5-Land soil moisture and SWE (2026-10-24; relaxed-testing policy applies)
 Probe finding: CDS requests queue for many minutes even when tiny, so the pull is a resumable background job, not interactive.
