@@ -112,8 +112,20 @@ suites or mutation evaluation while the research design iterates; existing locke
   - **Record length is a proxy** (days with data / 365.25 from the USGS series catalog). Usable water years since 1982 will be
     lower (SF McKenzie: 56 by proxy, 30 usable). The real count needs the flow pull, after which the selected set is re-screened.
   - 49 of the 66 still report in 2025. GAGES-II reference status only covers data to 2009, so later regulation is unchecked.
-  - Not yet decided: whether to pull flow and gridMET for the 62 new basins (several hundred requests, cached and resumable)
-    and whether the ERA5-Land box is extended; the current box covers the six pilots only.
+  - Defaults chosen by the user (2026-10-27, "use your recommendations"): re-screen at >= 30 usable WYs since 1982; new basins
+    labelled `unclassified` until a data rule assigns maritime / transition / continental; ERA5-Land for the new basins deferred
+    until the set is final, then one request box per HUC4 group; the current ERA5 pull stays six-basin.
+  - **Step 1 done** (`fallsoil.expansion`, `scripts/extract_expansion_basins.py`): 62 polygons extracted; polygon area equals
+    GAGES-II DRAIN_SQKM for every gauge.
+  - **Step 2 result** (`scripts/pull_expansion_flow.py`, `scripts/screen_expansion_flow.py`; USGS flow to 2025-09-30, 62 of 62
+    pulled, no failures). Usable WY = response status "ok", WY1982-2025 (the pilot definition). **36 of 62 pass at >= 30**
+    (>= 20: 41, >= 25: 37, >= 35: 32, >= 40: 28). Median usable years of the passers is 43. The proxy overstated the set because
+    it counted pre-1982 years: 9 basins have zero usable years (records ended 1972-1978, or are gapped and resume only in 2026),
+    and others stop in the 1990s-2000s. Passers by state: OR 13, WA 9, ID 6, WY 4, MT 3, NV 1; HUC4 1709 has 8. Area bands: 6
+    at 50-200 km2, 18 at 200-500, 9 at 500-1000, 3 at 1000-2000. Analysis set if all pass on to forcing: 6 pilots + 36 = **42
+    basins**, not 100+. Output: `data/interim/expansion_flow_screen.csv` (gitignored).
+  - Not yet done: gridMET for the 36 passers (step 3), responses and first-look rerun (step 4). Reaching a sample near 100
+    would need a wider region or non-reference gauges.
 
 ## M2c bulk-pull design: ERA5-Land soil moisture and SWE (2026-10-24; relaxed-testing policy applies)
 Probe finding: CDS requests queue for many minutes even when tiny, so the pull is a resumable background job, not interactive.
