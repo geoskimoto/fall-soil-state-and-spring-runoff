@@ -117,14 +117,20 @@ suites or mutation evaluation while the research design iterates; existing locke
     until the set is final, then one request box per HUC4 group; the current ERA5 pull stays six-basin.
   - **Step 1 done** (`fallsoil.expansion`, `scripts/extract_expansion_basins.py`): 62 polygons extracted; polygon area equals
     GAGES-II DRAIN_SQKM for every gauge.
-  - **Step 2 result** (`scripts/pull_expansion_flow.py`, `scripts/screen_expansion_flow.py`; USGS flow to 2025-09-30, 62 of 62
-    pulled, no failures). Usable WY = response status "ok", WY1982-2025 (the pilot definition). **36 of 62 pass at >= 30**
-    (>= 20: 41, >= 25: 37, >= 35: 32, >= 40: 28). Median usable years of the passers is 43. The proxy overstated the set because
+  - **Step 2 result** (`scripts/pull_expansion_flow.py`, `scripts/screen_expansion_flow.py`; USGS flow to 2025-10-31, 62 of 62
+    pulled, no failures). The first pull ended 2025-09-30, which left every expansion WY2025 row partial (no October for
+    q7min and next_oct_mean); it was re-pulled to 2025-10-31 and the screen and metrics re-run (35 of 36 passers gained a year;
+    the same 36 pass). Usable WY = response status "ok", WY1982-2025 (the pilot definition). **36 of 62 pass at >= 30**
+    (>= 20: 41, >= 25: 38, >= 35: 32, >= 40: 28). Median usable years of the passers is 44. The proxy overstated the set because
     it counted pre-1982 years: 9 basins have zero usable years (records ended 1972-1978, or are gapped and resume only in 2026),
     and others stop in the 1990s-2000s. Passers by state: OR 13, WA 9, ID 6, WY 4, MT 3, NV 1; HUC4 1709 has 8. Area bands: 6
     at 50-200 km2, 18 at 200-500, 9 at 500-1000, 3 at 1000-2000. Analysis set if all pass on to forcing: 6 pilots + 36 = **42
     basins**, not 100+. Output: `data/interim/expansion_flow_screen.csv` (gitignored).
-  - Not yet done: gridMET for the 36 passers (step 3), responses and first-look rerun (step 4). Reaching a sample near 100
+  - **Step 4a done** (`scripts/compute_responses_all.py`): response metrics for 42 basins (6 pilots + 36), WY1982-2025, 1846
+    basin-years: 1735 ok, 19 partial, 92 nan. Pilot usable counts reproduce the earlier ones. Outputs (gitignored):
+    `data/interim/responses/` and `data/interim/responses_all.parquet`.
+  - Not yet done: gridMET for the 36 passers (step 3, pull running or finished; check the count of
+    `gridmet_*_1981-10-01_2025-09-30.parquet` files = 108), then the first-look rerun on all 42. Reaching a sample near 100
     would need a wider region or non-reference gauges.
 
 ## M2c bulk-pull design: ERA5-Land soil moisture and SWE (2026-10-24; relaxed-testing policy applies)

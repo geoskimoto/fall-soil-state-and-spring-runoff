@@ -1,6 +1,7 @@
 """Resumable USGS daily-flow pull for the expansion basins (step 2 of the expansion plan, docs/M2_PLAN.md).
 
-Full record up to the end of WY2025 (2025-09-30), so file names are stable and the pull is reproducible. A basin whose
+Full record through 2025-10-31 (the end of WY2025 plus its October, which q7min and next_oct_mean need), so file names are
+stable and the pull is reproducible. An earlier pull ending 2025-09-30 left every WY2025 row partial. A basin whose
 parquet already exists is skipped; requests are sequential with a pause between them. Not production code: it only calls
 fallsoil.fetch.usgs_flow and logs one line per basin. Usage: python scripts/pull_expansion_flow.py [pause_s]
 """
@@ -13,7 +14,7 @@ from fallsoil.errors import FallsoilError
 from fallsoil.expansion import load_expansion_basins
 from fallsoil.fetch.usgs_flow import DEFAULT_START, fetch_daily_flow
 
-END = "2025-09-30"
+END = "2025-10-31"
 pause_s = float(sys.argv[1]) if len(sys.argv) > 1 else 1.0
 basins = load_expansion_basins()
 print(f"{len(basins)} expansion basins; flow to {END}; pause {pause_s}s", flush=True)
