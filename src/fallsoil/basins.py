@@ -20,25 +20,28 @@ class Basin:
 
     id: str
     name: str
-    setting: str  # maritime | transition | continental
+    setting: str  # maritime | transition | continental (expansion basins: unclassified until classified from data)
     gauge: str
+    polygon_file: str = POLYGON_FILE
+    area_sqkm: float | None = None  # set for expansion basins; the pilots use the _DRAIN_SQKM constants
 
     @property
     def drain_sqkm(self) -> float:
         """GAGES-II DRAIN_SQKM (drainage area, km2) of the gauge. A constant: no file access."""
-        return _DRAIN_SQKM[self.id]
+        return self.area_sqkm if self.area_sqkm is not None else _DRAIN_SQKM[self.id]
 
     @property
     def polygon_path(self) -> Path:
-        return config.get_data_dir() / "raw" / "basins" / POLYGON_FILE
+        return config.get_data_dir() / "raw" / "basins" / self.polygon_file
 
     def polygon(self):
         """Basin polygon in EPSG:4326 (Polygon or MultiPolygon)."""
         path = self.polygon_path
         if not path.is_file():
+            script = "extract_pilot_basins.py" if self.polygon_file == POLYGON_FILE else "extract_expansion_basins.py"
             raise ConfigError(
-                f"Basin polygons not found at {path}. Run scripts/extract_pilot_basins.py to create "
-                f"{POLYGON_FILE} from the GAGES-II boundary shapefiles."
+                f"Basin polygons not found at {path}. Run scripts/{script} to create "
+                f"{self.polygon_file} from the GAGES-II boundary shapefiles."
             )
         gdf = gpd.read_file(path, engine="pyogrio")
         rows = gdf[gdf["site_no"] == self.id]
