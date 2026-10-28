@@ -114,7 +114,7 @@ if [[ -f $PIDFILE ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
   die "an ERA5 pull is already running here (pid $(cat "$PIDFILE")); not starting a second one"
 fi
 have=0
-[[ -d data/raw/era5land ]] && have=$(find data/raw/era5land -maxdepth 1 -name '*.nc' | wc -l)
+[[ -d data/raw/era5land ]] && have=$(find data/raw/era5land -maxdepth 1 \( -name '*.nc' -o -name '*.zip' \) | wc -l)
 want=$(( (LAST - FIRST + 1) * 4 ))
 echo "cached quarters: ${have} of ${want}; the pull skips those and requests the rest"
 LOG="logs/era5land_pull_$(date -u +%Y%m%dT%H%M%SZ).log"
@@ -128,9 +128,9 @@ fi
 cat <<MSG
 
 Monitor:   tail -f ${LOG}
-Progress:  ls data/raw/era5land/*.nc | wc -l     (target ${want}; one NetCDF per year-quarter)
+Progress:  ls data/raw/era5land/*.{nc,zip} 2>/dev/null | wc -l   (target ${want}; one file per year-quarter)
 Stop:      kill \$(cat ${PIDFILE})                (safe: finished quarters stay cached)
 Resume:    ./new_deploy.sh --skip-tests          (re-run the same command; it picks up where the cache ends)
-CDS requests can queue for hours. A healthy pull shows 'YYYYQn: <file>.nc' lines; no lines for many hours with
+CDS requests can queue for hours. A healthy pull shows 'YYYYQn: <file>' lines; no lines for many hours with
 CLOSE-WAIT sockets (ss -tnp | grep python) is the hung state seen on the old machine.
 MSG
