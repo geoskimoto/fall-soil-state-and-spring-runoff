@@ -14,3 +14,6 @@ data/
 # literature-review working files (final review lives in docs/LITERATURE_REVIEW.md)
 reports/
 research_notes/
+
+# runtime logs (ERA5 pull, deploy)
+logs/
