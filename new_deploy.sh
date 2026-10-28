@@ -113,7 +113,8 @@ PIDFILE=logs/era5land_pull.pid
 if [[ -f $PIDFILE ]] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
   die "an ERA5 pull is already running here (pid $(cat "$PIDFILE")); not starting a second one"
 fi
-have=$(find data/raw/era5land -maxdepth 1 -name '*.nc' 2>/dev/null | wc -l)
+have=0
+[[ -d data/raw/era5land ]] && have=$(find data/raw/era5land -maxdepth 1 -name '*.nc' | wc -l)
 want=$(( (LAST - FIRST + 1) * 4 ))
 echo "cached quarters: ${have} of ${want}; the pull skips those and requests the rest"
 LOG="logs/era5land_pull_$(date -u +%Y%m%dT%H%M%SZ).log"
