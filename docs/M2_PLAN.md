@@ -129,9 +129,16 @@ suites or mutation evaluation while the research design iterates; existing locke
   - **Step 4a done** (`scripts/compute_responses_all.py`): response metrics for 42 basins (6 pilots + 36), WY1982-2025, 1846
     basin-years: 1735 ok, 19 partial, 92 nan. Pilot usable counts reproduce the earlier ones. Outputs (gitignored):
     `data/interim/responses/` and `data/interim/responses_all.parquet`.
-  - Not yet done: gridMET for the 36 passers (step 3, pull running or finished; check the count of
-    `gridmet_*_1981-10-01_2025-09-30.parquet` files = 108), then the first-look rerun on all 42. Reaching a sample near 100
-    would need a wider region or non-reference gauges.
+  - **Step 3 done** (2026-10-28): gridMET for all 36 passers (108 files). The THREDDS server timed out on most requests on
+    2026-10-26/27 (76 failures per pass, no files added) and answered normally on 2026-10-28; cause not determined (outage or
+    throttling), and the resumable script filled the gaps in one pass.
+  - **First look on all 42 basins, EXPLORATORY** (`scripts/first_look_all.py`; `data/interim/fall_signal_all.csv`,
+    `first_look_all.parquet`, gitignored). Previous Sep-Nov precipitation coefficient (standardized, HC3), n = 29-43 years per
+    basin: nominal p<0.05 in 14 of 42 (about 2.1 expected by chance); Benjamini-Hochberg q<0.05 in 11 (all positive);
+    25 of 42 coefficients positive, median +0.029; median R2 gain +0.013. Of the 14 nominal hits, 13 are positive. Pilots 1 of 6
+    BH-significant, expansion 10 of 36. No snow or soil-moisture data, no out-of-sample test, no autocorrelation correction, so
+    this is a screen, not a result. Wet-season precipitation and basin proximity are not independent across basins, so the BH
+    count likely overstates independent evidence. Reaching a sample near 100 would need a wider region or non-reference gauges.
 
 ## M2c bulk-pull design: ERA5-Land soil moisture and SWE (2026-10-24; relaxed-testing policy applies)
 Probe finding: CDS requests queue for many minutes even when tiny, so the pull is a resumable background job, not interactive.
