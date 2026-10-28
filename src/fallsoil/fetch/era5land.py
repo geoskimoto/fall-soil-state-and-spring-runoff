@@ -66,19 +66,40 @@ def _stem(year: int, quarter: int, area) -> str:
 
 def cached_chunk(year: int, quarter: int, area) -> Path | None:
     """Path of an already-cached raw file for (year, quarter, area), or None."""
-    hits = sorted(config.raw_dir("era5land").glob(f"{_stem(year, quarter, area)}_*.nc"))
+    raw = config.raw_dir("era5land")
+    stem = _stem(year, quarter, area)
+    hits = sorted([*raw.glob(f"{stem}_*.nc"), *raw.glob(f"{stem}_*.zip")])
     return hits[-1] if hits else None
 
 
-def _unwrap(body: bytes) -> bytes:
-    """CDS may deliver a zip around the NetCDF; return the NetCDF bytes."""
-    if body[:2] == b"PK":
+def _raw_ext(body: bytes) -> str:
+    """'.zip' or '.nc' for a CDS download. CDS now zips one NetCDF per variable; the zip is cached as delivered."""
+    if body[:2] != b"PK":
+        return ".nc"
+    try:
         with zipfile.ZipFile(io.BytesIO(body)) as zf:
             names = [n for n in zf.namelist() if n.endswith(".nc")]
-            if len(names) != 1:
-                raise MalformedPayloadError("ERA5-Land download did not contain exactly one NetCDF file.")
-            return zf.read(names[0])
-    return body
+    except zipfile.BadZipFile as exc:
+        raise MalformedPayloadError("ERA5-Land download is a damaged zip file.") from exc
+    if not names:
+        raise MalformedPayloadError("ERA5-Land download zip contains no NetCDF file.")
+    return ".zip"
+
+
+def _open_raw(path: Path) -> xr.Dataset:
+    """Open a cached raw file in memory: a single NetCDF, or a CDS zip whose NetCDF members are merged."""
+    if path.suffix != ".zip":
+        return xr.open_dataset(path).load()
+    with tempfile.TemporaryDirectory() as tmp, zipfile.ZipFile(path) as zf:
+        parts = []
+        for name in sorted(n for n in zf.namelist() if n.endswith(".nc")):
+            member = Path(tmp) / Path(name).name
+            member.write_bytes(zf.read(name))
+            with xr.open_dataset(member) as ds:
+                parts.append(ds.load())
+    if not parts:
+        raise MalformedPayloadError(f"ERA5-Land file {path.name} contains no NetCDF file.")
+    return xr.merge(parts, compat="override", join="exact")
 
 
 def fetch_chunk(year: int, quarter: int, area=None, *, client=None) -> Path:
@@ -105,7 +126,8 @@ def fetch_chunk(year: int, quarter: int, area=None, *, client=None) -> Path:
         with tempfile.TemporaryDirectory(dir=config.raw_dir("era5land")) as tmp:
             target = Path(tmp) / "download.bin"
             client.retrieve(DATASET, request, str(target))
-            body = _unwrap(target.read_bytes())
+            body = target.read_bytes()
+            ext = _raw_ext(body)
     except FetchError:
         raise
     except Exception as exc:  # the CDS client raises many exception types; present one friendly error
@@ -113,7 +135,7 @@ def fetch_chunk(year: int, quarter: int, area=None, *, client=None) -> Path:
                          "Check ~/.cdsapirc and the CDS licence acceptance, then re-run; finished years are cached.") from exc
     if not body:
         raise EmptyResultError(f"ERA5-Land returned an empty file for {year} Q{quarter}.")
-    path = cache_raw(config.raw_dir("era5land"), _stem(year, quarter, area), body, ".nc")
+    path = cache_raw(config.raw_dir("era5land"), _stem(year, quarter, area), body, ext)
     manifest.record_fetch(source=SOURCE, url=DATASET, params={**request, "area": list(area)}, content=body, rows=0)
     return path
 
@@ -143,7 +165,7 @@ def basin_means(paths: list[Path], basin: Basin | str) -> pd.DataFrame:
     polygon = basin.polygon()
     frames = []
     for path in sorted(paths):
-        ds = xr.open_dataset(path)
+        ds = _open_raw(path)
         try:
             tname = _time_name(ds)
             missing = [v for v in FILE_VARIABLES if v not in ds]

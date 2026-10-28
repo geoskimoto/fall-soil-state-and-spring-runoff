@@ -207,6 +207,7 @@ the same rule (changes existing metadata; needs approval); or (3) skip bins and 
 | 2026-10-27 | 9 of 62 expansion gauges have zero usable years (records end 1972 to 1978, or gap and resume in 2026) | excluded by the screen | recorded in `expansion_flow_screen.csv` |
 | 2026-10-26/27 | gridMET THREDDS server timed out on most requests (76 failures per pass, then 0 files added) | pull stalled for about a day | script is resumable; server recovered 2026-10-28 and one pass finished; cause not determined (outage or throttling) |
 | 2026-10-28 | `pr` has 43 files for 42 basins | pilot files also exist with later end dates (to 2026-10-22/23); the loader takes the latest-sorting file and the analysis filters to WY1982 to 2025 | no effect on results |
+| 2026-10-28 | First ERA5-Land pull on the new machine: 0 of 180 quarters. 177 refused (CDS Terms of use rev. 13 not accepted); 3 (1981 Q2 to Q4) rejected because CDS now zips one NetCDF per variable and the fetcher expected one file | no ERA5 data yet | owner accepted the terms; fetcher now caches the zip byte-identical (`.zip`) and merges members when reading; pull restarted. Probe download kept in `data/raw/era5land/probe/` |
 | ongoing | Record length in the candidate screen is a proxy (days / 365.25) | overstated usable years | re-screened on real usable WYs |
 
 ## 8. Operational findings
