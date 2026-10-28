@@ -1,6 +1,8 @@
 # Milestone 2 Plan: first data pull, response metrics, covariates, basin-year table
 
-Status: DRAFT for review. Same process as Milestone 1: spec first, tests written by a separate agent from the spec,
+Status (2026-10-28): M2a, M2b and the 42-basin expansion are done and exploratory results are in `findings.md`; the ERA5-Land pull (M2c) is
+being restarted on a new machine with `new_deploy.sh`. The sections below record the original plan and later decisions.
+Original status: DRAFT for review. Same process as Milestone 1: spec first, tests written by a separate agent from the spec,
 tests locked, implementation, independent mutation evaluation. Statistical modelling is Milestone 3 and is not planned here.
 
 ## Goal
@@ -144,8 +146,10 @@ suites or mutation evaluation while the research design iterates; existing locke
 Probe finding: CDS requests queue for many minutes even when tiny, so the pull is a resumable background job, not interactive.
 - **Dataset:** `derived-era5-land-daily-statistics` (daily mean, 1-hourly frequency, time zone UTC-08:00 to match SNOTEL PST),
   variables `volumetric_soil_water_layer_1..4` and `snow_depth_water_equivalent`.
-- **Request unit:** one request per calendar year (1981-2026) over ONE union bounding box of the six pilot basins (basin bounds
-  plus one 0.1-degree cell, snapped to 0.1). About 46 requests instead of about 270, and the cached grids serve any basin inside
+- **Request unit (corrected 2026-10-28):** one request per calendar QUARTER over ONE union bounding box of the six pilot basins (basin
+  bounds plus one 0.1-degree cell, snapped to 0.1). The first draft said one request per year, but the CDS cost limit (about 400
+  fields = variables x days) allows 4 variables x 3 months per request, so the fetcher (`fetch_chunk(year, quarter)`) requests
+  quarters: 45 years x 4 = 180 requests for 1981-2025, and layer 4 (100-289 cm) is omitted. The cached grids serve any basin inside
   the box. A later Columbia-wide expansion would add boxes, not redo these.
 - **Cache and provenance:** raw NetCDF cached byte-identical under `data/raw/era5land/` (never overwritten), one manifest record
   per file. Resume = skip years whose cached file for the same box already exists.
@@ -153,6 +157,9 @@ Probe finding: CDS requests queue for many minutes even when tiny, so the pull i
   62 km2, falls on about one cell: treated as a negative control, per the risks above). Output `data/interim/era5land/`
   parquet per basin with `sm_l1..l4_m3m3`, `sm_0_100cm_m3m3` (ERA5-Land layers are 0-7, 7-28, 28-100 and 100-289 cm;
   the 0-100 cm column weights the first three) and `swe_mm`.
+- **Status (2026-10-28):** the first pull (started 2026-10-24) was hung on CDS and produced no files in 4 days (no log; sockets in
+  CLOSE-WAIT). It is restarted on a new machine by `new_deploy.sh`, which logs to `logs/` and keeps a pid file. The old pull competes
+  for the account's queued-request limit and should be stopped first.
 - **Deferred:** within-basin percentile transform, snow-on date, deficit proxy and the double-mass estimate stay as specified in
   M2c above, built on these parquet files after the pull.
 

@@ -1,6 +1,8 @@
 # Fall Soil State and Spring Runoff — Project Guide
 
-Status: DRAFT for review. No implementation or tests exist yet.
+Status (2026-10-28): this is the original design document (2026-10-23); it has not been rewritten. Implementation, 891 tests and 42-basin
+exploratory results now exist: see `findings.md` for results, `CLAUDE.md` for how to work in the repo, and `docs/M2_PLAN.md` for decisions.
+The pilot set grew from five to six basins (SF McKenzie was added as the maritime alternate).
 Repo: https://github.com/geoskimoto/fall-soil-state-and-spring-runoff
 
 ## 1. Question and hypothesis
